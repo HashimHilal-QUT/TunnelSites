@@ -1,0 +1,47 @@
+# --- Dependencies ---
+node_modules/
+.pnpm-store/
+.yarn/
+package-lock.json (optional: keep if you rely on strict lockfile commits)
+
+# --- Environment & Credentials ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+
+# --- Docker & Local Volume Mounts ---
+# Prevents committing local database storage or runner artifacts
+pgdata/
+mongodata/
+miniodata/
+actions-runner/
+.cloudflared/
+
+# --- Operating System & Editor Files ---
+# Windows / WSL / VS Code leftovers
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# --- Build Outputs & Caches ---
+dist/
+build/
+.next/
+.out/
+.cache/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Latency & Testing Artifacts ---
+*.summary.json
+*.csv

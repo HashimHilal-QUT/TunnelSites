@@ -1,0 +1,63 @@
+services:
+  # --- 1. Dynamic Router & Reverse Proxy (Traefik) ---
+  traefik:
+    image: traefik:v2.10
+    container_name: vibe_traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080" # Traefik Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - vibe_net
+
+  # --- 2. Databases ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: vibe_postgres
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - vibe_net
+
+  mongodb:
+    image: mongo:6.0
+    container_name: vibe_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - vibe_net
+
+  # --- 3. Test Vibe Coder App (Demo Container) ---
+  coder1_app:
+    image: nginxdemos/hello
+    container_name: coder1_app
+    networks:
+      - vibe_net
+    labels:
+      - "traefik.enable=true"
+      # Catch-all rule for any incoming hostname (localhost or Cloudflare tunnel subdomains)
+      - "traefik.http.routers.coder1.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.coder1.entrypoints=web"
+      - "traefik.http.services.coder1.loadbalancer.server.port=80"
+
+networks:
+  vibe_net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  mongodata:
